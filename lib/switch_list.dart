@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_smart_home/data.dart';
 import 'package:flutter_smart_home/switch_card.dart';
 import 'add_switch.dart';
-import 'data.dart';
 
 class SwitchList extends StatefulWidget {
   SwitchList({super.key});
@@ -21,6 +20,8 @@ class _SwitchListState extends State<SwitchList> {
 
   Future<void> _initDatabase() async {
     database = await DatabaseProvider.instance.database;
+    // trigger rebuild once the database has loaded
+    setState(() {});
   }
 
   @override

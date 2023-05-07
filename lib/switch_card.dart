@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:async';
+import 'dart:convert';
 
 class SwitchCard extends StatefulWidget {
   final String name;
@@ -10,12 +13,34 @@ class SwitchCard extends StatefulWidget {
 }
 
 class _SwitchCardState extends State<SwitchCard> {
+  Timer? timer;
+  bool isOn = false;
+  @override
+  void initState() {
+    super.initState();
+    checkIsOn();
+    timer = Timer.periodic(Duration(seconds: 5), (Timer t) => checkIsOn());
+  }
+
+  @override
+  void dispose() {
+    timer?.cancel();
+    super.dispose();
+  }
+
+  void checkIsOn() async {
+    http.Response response =
+        await http.get(Uri.parse("${widget.url}/cm?cmnd=Power"));
+    dynamic jsonResponse = jsonDecode(response.body);
+    setState(() {
+      isOn = jsonResponse['POWER'] == 'ON';
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        print("Tapped");
-      },
+      onTap: () {},
       child: Card(
         child: Padding(
           padding: const EdgeInsets.all(8.0),
@@ -23,9 +48,13 @@ class _SwitchCardState extends State<SwitchCard> {
             children: [
               CircleAvatar(
                 radius: 20,
-                backgroundColor: Colors.green,
+                backgroundColor: isOn ? Colors.green : Colors.white,
                 child: IconButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      http.get(
+                          Uri.parse("${widget.url}/cm?cmnd=Power%20TOGGLE"));
+                      checkIsOn();
+                    },
                     icon: Icon(
                       Icons.power_settings_new,
                     )),
