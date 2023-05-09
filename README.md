@@ -1,16 +1,6 @@
 # flutter_smart_home
 
-A new Flutter project.
-
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+A lightweight and completely local 'smart' home hub (stretching the word smart there).
+This allows the user to enter names and URLs for smart switches so that they can be toggled from the app.
+This is for use with tasmota. The motivations behind this are wanting to have wifi switches but becoming fed up with the apps and firmware available from suppliers.
+Tasmota is a great firmware for control and keeping the control within the LAN but navigating to a website is clunky. This keeps the buttons in the same place and polls for the current status.
