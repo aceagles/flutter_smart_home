@@ -4,7 +4,7 @@ import 'package:flutter_smart_home/switch_card.dart';
 import 'add_switch.dart';
 
 class SwitchList extends StatefulWidget {
-  SwitchList({super.key});
+  const SwitchList({super.key});
 
   @override
   State<SwitchList> createState() => _SwitchListState();
@@ -12,6 +12,7 @@ class SwitchList extends StatefulWidget {
 
 class _SwitchListState extends State<SwitchList> {
   MyDatabase? database;
+
   @override
   void initState() {
     super.initState();
@@ -26,10 +27,9 @@ class _SwitchListState extends State<SwitchList> {
 
   @override
   Widget build(BuildContext context) {
-    print("Building");
     return Scaffold(
       appBar: AppBar(
-        title: Text("Switches"),
+        title: const Text("Switches"),
         centerTitle: true,
       ),
       body: StreamBuilder<List<SwitchEntry>>(
@@ -40,7 +40,7 @@ class _SwitchListState extends State<SwitchList> {
           }
 
           if (!snapshot.hasData) {
-            return CircularProgressIndicator();
+            return const CircularProgressIndicator();
           }
 
           final switchList = snapshot.data!;
@@ -48,13 +48,11 @@ class _SwitchListState extends State<SwitchList> {
           return ReorderableListView(
             onReorder: (oldIndex, newIndex) {
               setState(() {
+                //Reorder the rows now based on new indexes. when going low to high the newIndex is +1 too much for some reason.
                 if (newIndex > oldIndex) newIndex -= 1;
                 final item = switchList.removeAt(oldIndex);
-                print(switchList);
                 switchList.insert(newIndex, item);
-                print(switchList);
                 for (int i = 0; i < switchList.length; i++) {
-                  print(switchList[i].id);
                   database?.setPosition(switchList[i].id, i);
                 }
               });

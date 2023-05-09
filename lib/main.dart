@@ -2,7 +2,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_smart_home/switch_list.dart';
-import 'data.dart';
 import 'add_switch.dart';
 
 void main() {

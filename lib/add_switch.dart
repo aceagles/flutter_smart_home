@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_smart_home/data.dart';
 import 'package:drift/drift.dart' as dft;
-import 'package:flutter_smart_home/switch_list.dart';
 
 class InputForm extends StatefulWidget {
   final int? id;
@@ -18,6 +17,7 @@ class _InputFormState extends State<InputForm> {
   MyDatabase? database;
   bool isUpdating = false;
   late SwitchEntry updatingSwitch;
+
   @override
   void initState() {
     super.initState();
@@ -26,12 +26,13 @@ class _InputFormState extends State<InputForm> {
 
   Future<void> _initDatabase() async {
     database = await DatabaseProvider.instance.database;
+
+    //Check if an id was provided by the previous view. if so populate the form and set to edit mode.
     if (widget.id != null) {
       int _id = widget.id!;
       updatingSwitch = await database!.getSwitch(_id);
       _nameController.text = updatingSwitch.name;
       _urlController.text = updatingSwitch.url;
-      print(updatingSwitch);
       setState(() {
         isUpdating = true;
       });
@@ -42,7 +43,7 @@ class _InputFormState extends State<InputForm> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("New Switch"),
+        title: const Text("New Switch"),
       ),
       body: Form(
         key: _formKey,
@@ -56,14 +57,14 @@ class _InputFormState extends State<InputForm> {
                 children: <Widget>[
                   TextFormField(
                     controller: _nameController,
-                    decoration: InputDecoration(labelText: "Name"),
+                    decoration: const InputDecoration(labelText: "Name"),
                   ),
                   const SizedBox(
                     height: 16.0,
                   ),
                   TextFormField(
                     controller: _urlController,
-                    decoration: InputDecoration(labelText: "URL"),
+                    decoration: const InputDecoration(labelText: "URL"),
                   ),
                   const SizedBox(
                     height: 16.0,
@@ -73,25 +74,29 @@ class _InputFormState extends State<InputForm> {
                     children: [
                       ElevatedButton(
                           onPressed: () async {
-                            final urlT = _urlController.text;
+                            // if we're updating then replace an entry with the new values.
+                            // persist the id and the position but take the others form the form
                             if (isUpdating) {
                               database?.updateSwitch(SwitchEntry(
                                   id: updatingSwitch.id,
                                   name: _nameController.text,
                                   url: _urlController.text,
                                   position: updatingSwitch.position));
-                            } else {
-                              print(await database?.addSwitch(SwitchesCompanion(
+                            }
+                            // if adding new then add a name and controller text and let position
+                            // and ID be dealt with by the database
+                            else {
+                              await database?.addSwitch(SwitchesCompanion(
                                 name: dft.Value(_nameController.text),
                                 url: dft.Value(_urlController.text),
-                              )));
-                              print("Added");
+                              ));
                             }
+                            // Go back home after editing.
                             Navigator.popUntil(
                                 context, ModalRoute.withName('/'));
                           },
                           child: Text(isUpdating ? "Update" : "Add")),
-                      SizedBox(
+                      const SizedBox(
                         height: 16,
                       ),
                       if (isUpdating)
@@ -103,7 +108,7 @@ class _InputFormState extends State<InputForm> {
                             },
                             style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.red),
-                            child: Text("Delete")),
+                            child: const Text("Delete")),
                     ],
                   ))
                 ],
