@@ -4,7 +4,8 @@ import 'package:drift/drift.dart' as dft;
 import 'package:flutter_smart_home/switch_list.dart';
 
 class InputForm extends StatefulWidget {
-  const InputForm({super.key});
+  final int? id;
+  const InputForm({super.key, this.id});
 
   @override
   State<InputForm> createState() => _InputFormState();
@@ -15,7 +16,8 @@ class _InputFormState extends State<InputForm> {
   final _nameController = TextEditingController();
   final _urlController = TextEditingController();
   MyDatabase? database;
-
+  bool isUpdating = false;
+  late SwitchEntry updatingSwitch;
   @override
   void initState() {
     super.initState();
@@ -24,6 +26,16 @@ class _InputFormState extends State<InputForm> {
 
   Future<void> _initDatabase() async {
     database = await DatabaseProvider.instance.database;
+    if (widget.id != null) {
+      int _id = widget.id!;
+      updatingSwitch = await database!.getSwitch(_id);
+      _nameController.text = updatingSwitch.name;
+      _urlController.text = updatingSwitch.url;
+      print(updatingSwitch);
+      setState(() {
+        isUpdating = true;
+      });
+    }
   }
 
   @override
@@ -62,23 +74,36 @@ class _InputFormState extends State<InputForm> {
                       ElevatedButton(
                           onPressed: () async {
                             final urlT = _urlController.text;
-                            print(await database?.addSwitch(SwitchesCompanion(
-                              name: dft.Value(_nameController.text),
-                              url: dft.Value(_urlController.text),
-                            )));
-                            print("Added");
+                            if (isUpdating) {
+                              database?.updateSwitch(SwitchEntry(
+                                  id: updatingSwitch.id,
+                                  name: _nameController.text,
+                                  url: _urlController.text,
+                                  position: updatingSwitch.position));
+                            } else {
+                              print(await database?.addSwitch(SwitchesCompanion(
+                                name: dft.Value(_nameController.text),
+                                url: dft.Value(_urlController.text),
+                              )));
+                              print("Added");
+                            }
                             Navigator.popUntil(
                                 context, ModalRoute.withName('/'));
                           },
-                          child: Text("Add")),
+                          child: Text(isUpdating ? "Update" : "Add")),
                       SizedBox(
                         height: 16,
                       ),
-                      ElevatedButton(
-                          onPressed: () async {
-                            await database?.deleteAllSwitches();
-                          },
-                          child: Text("Clear")),
+                      if (isUpdating)
+                        ElevatedButton(
+                            onPressed: () async {
+                              await database?.deleteSwitch(updatingSwitch.id);
+                              Navigator.popUntil(
+                                  context, ModalRoute.withName('/'));
+                            },
+                            style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.red),
+                            child: Text("Delete")),
                     ],
                   ))
                 ],

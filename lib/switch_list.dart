@@ -45,12 +45,28 @@ class _SwitchListState extends State<SwitchList> {
 
           final switchList = snapshot.data!;
 
-          return ListView.builder(
-            itemCount: switchList.length,
-            itemBuilder: (context, index) {
-              final entry = switchList[index];
-              return SwitchCard(name: entry.name, url: entry.url);
+          return ReorderableListView(
+            onReorder: (oldIndex, newIndex) {
+              setState(() {
+                if (newIndex > oldIndex) newIndex -= 1;
+                final item = switchList.removeAt(oldIndex);
+                print(switchList);
+                switchList.insert(newIndex, item);
+                print(switchList);
+                for (int i = 0; i < switchList.length; i++) {
+                  print(switchList[i].id);
+                  database?.setPosition(switchList[i].id, i);
+                }
+              });
             },
+            children: <Widget>[
+              for (int i = 0; i < switchList.length; i++)
+                SwitchCard(
+                    name: switchList[i].name,
+                    url: switchList[i].url,
+                    id: switchList[i].id,
+                    key: UniqueKey()),
+            ],
           );
         },
       ),
